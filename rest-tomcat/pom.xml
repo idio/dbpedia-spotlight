@@ -111,6 +111,11 @@
             <artifactId>jersey-servlet</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.gmbal</groupId>
+            <artifactId>gmbal</artifactId>
+            <version>3.0.0-b023</version>
+        </dependency>
 
     </dependencies>
 

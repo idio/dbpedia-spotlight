@@ -114,7 +114,11 @@
             <groupId>org.dbpedia.spotlight</groupId>
             <artifactId>index</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.glassfish.gmbal</groupId>
+            <artifactId>gmbal</artifactId>
+            <version>3.0.0-b023</version>
+        </dependency>
 
     </dependencies>
 

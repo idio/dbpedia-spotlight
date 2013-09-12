@@ -59,6 +59,11 @@
 
 
     <dependencies>
+        <dependency>
+            <groupId>net.logstash.log4j</groupId>
+            <artifactId>jsonevent-layout</artifactId>
+            <version>1.4</version>
+        </dependency>
 
         <dependency>
             <groupId>org.dbpedia.spotlight</groupId>
@@ -134,6 +139,11 @@
         <dependency>
             <groupId>org.aksw</groupId>
             <artifactId>nif</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.gmbal</groupId>
+            <artifactId>gmbal</artifactId>
+            <version>3.0.0-b023</version>
         </dependency>
     </dependencies>
 
