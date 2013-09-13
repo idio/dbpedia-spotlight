@@ -111,6 +111,7 @@ public class Server {
 
 
         SelectorThread threadSelector = GrizzlyWebContainerFactory.create(serverURI, initParams);
+        threadSelector.enableMonitoring();
         threadSelector.start();
 
         System.err.println("Server started in " + System.getProperty("user.dir") + " listening on " + serverURI);
