@@ -212,6 +212,7 @@
             <dependency>
                 <groupId>org.glassfish.gmbal</groupId>
                 <artifactId>gmbal</artifactId>
+                <version>3.0.0-b023</version>
             </dependency>
             <dependency>
                 <groupId>org.dbpedia.spotlight</groupId>
