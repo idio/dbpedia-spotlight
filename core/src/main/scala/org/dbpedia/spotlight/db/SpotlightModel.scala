@@ -89,6 +89,7 @@ object SpotlightModel {
       case _ => new NoContextSimilarity(MathUtil.ln(1.0))
 
     def getRelevance():Relevance = properties.getProperty("relevance_scoring")match {
+      case null => null
       case s: String if s equals "None" => null
       case s: String if s equals "default" => new RelevanceScorer(contextStore, new BaseRelevanceScore())
     }
