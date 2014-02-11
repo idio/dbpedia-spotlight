@@ -63,7 +63,10 @@ class BaseRelevanceScore extends RelevanceScore  {
   }
 
   def getMinMaxNormalizationValue(currentValue:Double, minValue:Double, maxValue:Double, newMinValue:Double, newMaxValue:Double):Double ={
-    return ((currentValue - minValue) / (maxValue-minValue)) * (newMaxValue-newMinValue) + newMinValue
+    if (minValue!=maxValue)
+      return ((currentValue - minValue) / (maxValue-minValue)) * (newMaxValue-newMinValue) + newMinValue
+    else
+      return newMaxValue
   }
 
   /*
