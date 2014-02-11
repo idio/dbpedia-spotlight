@@ -74,6 +74,7 @@ object SpotlightModel {
     }
 
     def getRelevance():Relevance = properties.getProperty("relevance_scoring")match {
+      case null => null
       case s: String if s equals "None" => null
       case s: String if s equals "default" => new RelevanceScorer(contextStore, new BaseRelevanceScore())
     }
