@@ -77,8 +77,19 @@ class BaseRelevanceScore extends RelevanceScore  {
 
       // adding score for common tokens in context
       for(tokenType<-tokenOverlap){
+        /*
+        * Strength of word for the current topic
+        * */
         val topicScore =  contextVector.getOrElse(tokenType,0.0)
+        /*
+        * Strength of word in contextVector and in the actual text
+        * */
         val boostScoreContext =  topicScore * textVector.getOrElse(tokenType,0.0)
+        /*
+        An extra boost for context words which are shared among other topics spotted. ]
+        Basically this work on the assumption that the relevant topics in an article are usually around one domain
+        so those topics should share some of their context words.
+        */
         val boostCommonTokenAmongTopics = topicScore  *  tfMap.getOrElse(tokenType,0.0) * 0.4
         score = score + (topicScore + boostScoreContext + boostCommonTokenAmongTopics)
       }
@@ -126,6 +137,9 @@ class BaseRelevanceScore extends RelevanceScore  {
 
   }
 
+  /*
+  * Calcualtes the relevance Score(Interface)
+  * */
   def score(textVector: java.util.Map[TokenType, Int], contextTopicVectors: Map[DBpediaResource, java.util.Map[TokenType, Int]], frequencyOfTopicsInText: Map[DBpediaResource, Int]): mutable.Map[DBpediaResource, Double]={
     // preprocess Text Vector
     val cleanedTextVector = preprocessVector(textVector, 100)
@@ -141,10 +155,11 @@ class BaseRelevanceScore extends RelevanceScore  {
 
     // Calculate Scores
     return getRelevances(cleanedContextVectors.toMap, cleanedTextVector, tfMap, frequencyOfTopicsInText)
-
   }
 
-
+  /*
+  * Not used
+  * */
   def nilScore(query: java.util.Map[TokenType, Int]): Double={
     return 0.0
   }
