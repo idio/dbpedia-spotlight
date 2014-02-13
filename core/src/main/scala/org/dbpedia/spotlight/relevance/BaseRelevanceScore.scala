@@ -43,9 +43,10 @@ class BaseRelevanceScore extends RelevanceScore  {
 
   def processContextVectors(textVector:Map[TokenType, Double], contextVector:java.util.Map[TokenType, Int], maxDimensions:Int):Map[TokenType, Double]={
     var contextVectorScala = contextVector.asScala
-    val tokensInteresction = textVector.keySet.intersect(contextVectorScala.keySet)
+    val topContext = preprocessVector(contextVector, maxDimensions)
+    val tokensInteresction = textVector.keySet.intersect(contextVectorScala.keySet).union(topContext.keySet)
     contextVectorScala = contextVectorScala.filter(tokcntPair => tokensInteresction.contains(tokcntPair._1))
-    val processedContextVector = preprocessVector(contextVectorScala.asJava.asInstanceOf[java.util.Map[TokenType, Int]], maxDimensions)
+    val processedContextVector = preprocessVector(contextVectorScala.asJava.asInstanceOf[java.util.Map[TokenType, Int]], tokensInteresction.size)
     return processedContextVector
   }
 
