@@ -41,6 +41,14 @@ class BaseRelevanceScore extends RelevanceScore  {
     return normalizedVector
   }
 
+  def processContextVectors(textVector:Map[TokenType, Double], contextVector:java.util.Map[TokenType, Int], maxDimensions:Int):Map[TokenType, Double]={
+    var contextVectorScala = contextVector.asScala
+    val tokensInteresction = textVector.keySet.intersect(contextVectorScala.keySet)
+    contextVectorScala = contextVectorScala.filter(tokcntPair => tokensInteresction.contains(tokcntPair._1))
+    val processedContextVector = preprocessVector(contextVectorScala.asJava.asInstanceOf[java.util.Map[TokenType, Int]], maxDimensions)
+    return processedContextVector
+  }
+
   /*
   * returns a map containing NumberOfTopicsContainingContextWordi / #TotalNumberOfTopics
   * */
@@ -148,7 +156,7 @@ class BaseRelevanceScore extends RelevanceScore  {
     val cleanedContextVectors  = mutable.Map[DBpediaResource,Map[TokenType, Double]]()
 
     for( (dbpediaResource, contextVector) <- contextTopicVectors){
-      cleanedContextVectors(dbpediaResource) = preprocessVector(contextVector, 100)
+        cleanedContextVectors(dbpediaResource) = processContextVectors(cleanedTextVector, contextVector, 100)
     }
 
     val tfMap =  topicFrequency(cleanedTextVector, cleanedContextVectors.toMap)
