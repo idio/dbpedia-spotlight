@@ -134,12 +134,12 @@ class BaseRelevanceScore extends RelevanceScore  {
       scores(dbpediaTopic) = getMinMaxNormalizationValue(scores(dbpediaTopic), minValue, maxValue,0.1, newMaxValue)
     }
 
-    println("minValue:"+minValue)
-    println("maxValue"+maxValue)
+    println("minValue: " + minValue)
+    println("maxValue: " + maxValue)
     println("FINAL SCORES::::::::")
     val orderedScores = scores.toSeq.sortBy(_._2)
     for( (dbpediaTopic, score)<-orderedScores ){
-      println(dbpediaTopic.uri+" -- "+score)
+      println(dbpediaTopic.uri + " -- " + score)
     }
 
     return scores
