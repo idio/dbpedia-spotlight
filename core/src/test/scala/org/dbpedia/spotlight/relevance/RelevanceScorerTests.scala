@@ -137,6 +137,5 @@ class RelevanceScorerTest extends AssertionsForJUnit {
     // the relevance of each enetity is the same.
     assertEquals(result.get(barack),result.get(marilyn))
 
-
   }
 }
