@@ -32,6 +32,7 @@ class BaseRelevanceScore extends RelevanceScore  {
   * Preprocess a vector so that:
   * - vector contains maxNumberOfDimensions whose frequencies are the highest.
   * - vector is normalized
+  * 
   * */
   def preprocessVector(vector:java.util.Map[TokenType, Int], maxNumberOfDimensions:Int):Map[TokenType, Double]={
     //Prune Dimensions
@@ -41,6 +42,16 @@ class BaseRelevanceScore extends RelevanceScore  {
     return normalizedVector
   }
 
+
+  /*
+  * - Cast context vectors from Java types to Scala types
+  * - prune context Vectors based on the tokens found in the text
+  * - Normalize the Vectors
+  *
+  * @param textVector frequency of stemmted tokens in text
+  * @param contextVector context Vector of a topic
+  * @param maxDimensions max number of dimensions of the output vector
+  * */
   def processContextVectors(textVector:Map[TokenType, Double], contextVector:java.util.Map[TokenType, Int],
                             maxDimensions:Int):Map[TokenType, Double]={
     var contextVectorScala = contextVector.asScala
@@ -54,6 +65,8 @@ class BaseRelevanceScore extends RelevanceScore  {
 
   /*
   * returns a map containing NumberOfTopicsContainingContextWordi / #TotalNumberOfTopics
+  * @param textVector  frequency of stemmted tokens in text
+  * @param topicContextVectors context vectors of topics
   * */
   def topicFrequency(textVector:Map[TokenType, Double],topicContextVectors:Map[DBpediaResource,
                      Map[TokenType, Double]]):Map[TokenType, Double]={
@@ -72,6 +85,14 @@ class BaseRelevanceScore extends RelevanceScore  {
     return tfMap.toMap
   }
 
+  /*
+  * Transforms currentValue to a new Value given the parameters for a max-min normalization
+  * @param currentValue value to transform
+  * @param minValue min value of the sequences of numbers being transformed
+  * @param maxValue max value  of the sequences of numbers being transformed
+  * @param newMinValue the new min value after normalization
+  * @param newMaxValue the new max value after normalization
+  * */
   def getMinMaxNormalizationValue(currentValue:Double, minValue:Double, maxValue:Double, newMinValue:Double,
                                   newMaxValue:Double):Double ={
     if (minValue != maxValue)
@@ -81,7 +102,11 @@ class BaseRelevanceScore extends RelevanceScore  {
   }
 
   /*
-  * Calculates the relevance for a topic given its contextVector and the textVector
+  * Calculates the relevance for a topic given its contextVector and the textVector.
+  * @param tokenOverlap the tokens overlapping between text vector and context vector
+  * @param contextVector the context vector of the current topic
+  * @param tfMap the frequency of tokens among  the context vectors of spotted topics
+  * @param frequencyOfTopicInText number of times the topic was spotted in the text
   * */
   def calculateRelevance(tokenOverlap:Set[TokenType],contextVector:Map[TokenType, Double],
                          textVector:Map[TokenType, Double],
@@ -115,6 +140,14 @@ class BaseRelevanceScore extends RelevanceScore  {
 
   }
 
+  /*
+  * @param contextVectors context vectors of spotted topics
+  * @param textVector frequency of stemmted tokens in text
+  * @param tfMap the frequency of tokens among  the context vectors of spotted topics
+  * @param frequencyOfTopicsInText frquency table telling how many times a topic is spotted in the text
+  *
+  * Returns a hash table matching topics to relevance scores
+  * */
   def getRelevances(contextVectors:Map[DBpediaResource,Map[TokenType, Double]], textVector:Map[TokenType, Double],
                     tfMap:Map[TokenType, Double],
                     frequencyOfTopicsInText:Map[DBpediaResource, Int]):mutable.Map[DBpediaResource, Double]={
@@ -147,7 +180,11 @@ class BaseRelevanceScore extends RelevanceScore  {
   }
 
   /*
-  * Calcualtes the relevance Score(Interface)
+  * Calcualtes the relevance Score
+  *  This is the method used from the other classes.
+  *  @param textVector frequency of stemmted tokens in text
+  *  @param contextTopicVectors map of topic to contextVector
+  *  @param frequencyOfTopicsInText frquency table telling how many times a topic is spotted in the text
   * */
   def score(textVector: java.util.Map[TokenType, Int],
             contextTopicVectors: Map[DBpediaResource, java.util.Map[TokenType, Int]],
