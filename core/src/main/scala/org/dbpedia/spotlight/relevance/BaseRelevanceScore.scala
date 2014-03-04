@@ -67,10 +67,7 @@ class BaseRelevanceScore extends RelevanceScore  {
         if (contextVector.contains(tokenType))
           counts = counts + 1
       }
-      if (counts > 0)
-        tfMap(tokenType) = counts/totalDocs.toDouble
-      else
-        tfMap(tokenType) = 0.0
+      tfMap(tokenType) = counts/totalDocs.toDouble
     }
     return tfMap.toMap
   }
