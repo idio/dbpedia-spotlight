@@ -19,12 +19,13 @@ import opennlp.tools.chunker.ChunkerModel
 import opennlp.tools.namefind.TokenNameFinderModel
 import stem.SnowballStemmer
 import tokenize.{OpenNLPTokenizer, LanguageIndependentTokenizer}
+import org.dbpedia.spotlight.relevance.{BaseRelevanceScore, RelevanceScorer, Relevance}
 
 
 class SpotlightModel(val tokenizer: TextTokenizer,
                      val spotters: java.util.Map[SpotterPolicy, Spotter],
                      val disambiguators: java.util.Map[DisambiguationPolicy, ParagraphDisambiguatorJ],
-                     val properties: Properties)
+                     val properties: Properties, val relevance:Relevance)
 
 object SpotlightModel {
 
@@ -70,6 +71,12 @@ object SpotlightModel {
     def stemmer(): Stemmer = properties.getProperty("stemmer") match {
       case s: String if s equals "None" => null
       case s: String => new SnowballStemmer(s)
+    }
+
+    def getRelevance():Relevance = properties.getProperty("relevance_scoring")match {
+      case null => null
+      case s: String if s equals "None" => null
+      case s: String if s equals "default" => new RelevanceScorer(contextStore, new BaseRelevanceScore())
     }
 
     val c = properties.getProperty("opennlp_parallel", Runtime.getRuntime.availableProcessors().toString).toInt
@@ -153,6 +160,7 @@ object SpotlightModel {
 
     val spotters: java.util.Map[SpotterPolicy, Spotter] = Map(SpotterPolicy.SpotXmlParser -> new SpotXmlParser(), SpotterPolicy.Default -> spotter).asJava
     val disambiguators: java.util.Map[DisambiguationPolicy, ParagraphDisambiguatorJ] = Map(DisambiguationPolicy.Default -> disambiguator).asJava
-    new SpotlightModel(tokenizer, spotters, disambiguators, properties)
+    val relevance:Relevance = getRelevance()
+    new SpotlightModel(tokenizer, spotters, disambiguators, properties, relevance)
   }
 }
