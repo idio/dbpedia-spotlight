@@ -7,7 +7,7 @@ import scala.collection.mutable
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import org.dbpedia.spotlight.db.model.ContextStore
-import org.dbpedia.spotlight.relevance.Relevance.RelevanceScore
+import org.dbpedia.spotlight.relevance.RelevanceScore
 
 /**
  * Created by dav009 on 03/02/2014.
@@ -186,7 +186,7 @@ class BaseRelevanceScore extends RelevanceScore  {
   *  @param contextTopicVectors map of topic to contextVector
   *  @param frequencyOfTopicsInText frquency table telling how many times a topic is spotted in the text
   * */
-  def score(textVector: java.util.Map[TokenType, Int],
+  def getRelevanceScores(textVector: Map[TokenType, Int],
             contextTopicVectors: Map[DBpediaResource, java.util.Map[TokenType, Int]],
             frequencyOfTopicsInText: Map[DBpediaResource, Int]): mutable.Map[DBpediaResource, Double]={
     // preprocess Text Vector

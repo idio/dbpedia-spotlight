@@ -1,29 +1,28 @@
 package org.dbpedia.spotlight.relevance
 
-import org.dbpedia.spotlight.db.similarity.ContextSimilarity
 import org.dbpedia.spotlight.db.model.ContextStore
-import org.dbpedia.spotlight.relevance.Relevance.RelevanceScore
 import org.dbpedia.spotlight.model._
 import scala.collection.mutable
 import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
 
 
 /**
  * Created by dav009 on 11/02/2014.
  */
 
-trait Relevance{
+trait RelevanceScore{
 
-  def calculateRelevances(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence],
-                          allText:Text):java.util.Map[DBpediaResource, java.lang.Double]
+ // def calculateRelevances(listOfResourceOcurrence:java.util.List[DBpediaResourceOccurrence],
+ //                         allText:Text):java.util.Map[DBpediaResource, java.lang.Double]
+
+  def getRelevanceScores(textVector:Map[TokenType,Int],
+                         topicContextVectors:Map[DBpediaResource,java.util.Map[TokenType, Int]],
+                         topicFrequencyInText:Map[DBpediaResource,Int]
+                        ):mutable.Map[DBpediaResource, Double]
 }
 
-object Relevance{
-  type RelevanceScore = ContextSimilarity
-}
 
-class RelevanceScorer(contextStore: ContextStore, relevanceScore:RelevanceScore) extends Relevance {
+class RelevanceScorer(contextStore: ContextStore, relevanceScore:RelevanceScore) {
   /*
   * Get the context vectors for a list of DbpediaResources
   * */
@@ -50,10 +49,11 @@ class RelevanceScorer(contextStore: ContextStore, relevanceScore:RelevanceScore)
 
     val listOfDbpediaOcurrences = listOfResourceOcurrence.asScala
     val topicFrequencyInText = listOfDbpediaOcurrences.groupBy(_.resource).mapValues(_.size)
+
     val textVector:Map[TokenType,Int] = processTextVector(allText.featureValue("tokens").get)
     val topicContextVectors = getContextVectors(topicFrequencyInText.keys)
 
-    val scores = relevanceScore.score(textVector, topicContextVectors, topicFrequencyInText)
+    val scores = relevanceScore.getRelevanceScores(textVector, topicContextVectors, topicFrequencyInText)
 
     return scores.asJava.asInstanceOf[java.util.Map[DBpediaResource, java.lang.Double]]
   }
