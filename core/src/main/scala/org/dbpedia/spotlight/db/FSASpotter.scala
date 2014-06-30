@@ -35,7 +35,7 @@ class FSASpotter(
 
         do {
           //Get the transition for the next token:
-          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).token)){
+          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).tokenType.toString)){
                 val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
                 //Add a span if this is a possible spot:
@@ -44,6 +44,10 @@ class FSASpotter(
 
                 //Keep traversing the FSA until a rejecting state or the end of the sentence:
                 currentState = nextState
+                println("token not in bad words"+ sentence(j).tokenType.toString)
+          }else{
+            println("token  in bad words"+ sentence(j).tokenType.toString)
+
           }
           j += 1
         } while ( currentState != FSASpotter.REJECTING_STATE && j < sentence.length )
