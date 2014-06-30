@@ -24,6 +24,8 @@ class FSASpotter(
 
     var spans = findUppercaseSequences(sentence.map(_.token).toArray)
 
+
+
     val ids = sentence.map(_.tokenType.id)
     sentence.zipWithIndex.foreach {
       case (t: Token, i: Int) => {
@@ -33,14 +35,16 @@ class FSASpotter(
 
         do {
           //Get the transition for the next token:
-          val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
+          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).token)){
+                val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
-          //Add a span if this is a possible spot:
-          if (endState == FSASpotter.ACCEPTING_STATE)
-            spans :+= new Span(i, j+1, "m")
+                //Add a span if this is a possible spot:
+                if (endState == FSASpotter.ACCEPTING_STATE)
+                  spans :+= new Span(i, j+1, "m")
 
-          //Keep traversing the FSA until a rejecting state or the end of the sentence:
-          currentState = nextState
+                //Keep traversing the FSA until a rejecting state or the end of the sentence:
+                currentState = nextState
+          }
           j += 1
         } while ( currentState != FSASpotter.REJECTING_STATE && j < sentence.length )
       }
@@ -108,20 +112,27 @@ object FSASpotter {
     sfStore.iterateSurfaceForms.filter(_.annotationProbability >= 0.05).grouped(100000).toList.par.flatMap(_.map{
       sf: SurfaceForm =>
         //Tokenize all SFs first
-        ( sf, tokenizer.tokenize(new Text(sf.name)) )
+        ( sf, tokenizer.tokenize(new Text(sf.name)))
     }).seq.foreach{
       case (sf: SurfaceForm, tokens: Seq[Token]) if tokens.size > 0 => {
+
+
 
         z+=1
         if ((z % 100000) == 0)
           System.err.println("Processed %d SFs.".format(z))
 
-        val ids = tokens.map(_.tokenType.id).toArray
+        val filteredTokens = tokens.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
+
+        filteredTokens
+
+        val ids = filteredTokens.map(_.tokenType.id).toArray
 
         //For each token in the SF, add the transitions to the FSA:
         var currentState = INITIAL_STATE
         if (ids.size > 1)
           (0 until ids.size-1).foreach { j: Int =>
+
             currentState = addNewTransition(currentState, ids(j))
           }
 
