@@ -99,7 +99,7 @@ object StemStoreGenerator{
         }
 
         val otherCandidatesArray = sfStore.lowercaseMap.get(stemmedSurfaceForm)
-        if (otherCandidatesArray.length >1){
+        if (otherCandidatesArray.length >0){
 
           val otherCandidates= otherCandidatesArray.map{
             candidateId:Int =>
