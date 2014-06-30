@@ -96,6 +96,7 @@ class FSATester(modelFolder: String){
         var j = i
 
         do {
+          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).tokenType.toString)){
           //Get the transition for the next token:
           val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
@@ -105,6 +106,12 @@ class FSATester(modelFolder: String){
 
           //Keep traversing the FSA until a rejecting state or the end of the sentence:
           currentState = nextState
+            println("token not in bad words"+ sentence(j).tokenType.toString)
+          }else{
+
+            println("token  in bad words"+ sentence(j).tokenType.toString)
+          }
+
           j += 1
         } while ( currentState != FSASpotter.REJECTING_STATE && j < sentence.length )
       }
@@ -113,7 +120,9 @@ class FSATester(modelFolder: String){
     spans
   }
 
-  def testWord(text: String){
+
+
+def testWord(text: String){
 
     val tokens = tokenizer.tokenize(new Text(text))
     val spans = generateCandidates(tokens)
