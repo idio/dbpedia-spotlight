@@ -7,6 +7,7 @@ import java.util.Locale
 import org.dbpedia.spotlight.db.model.{TextTokenizer, Stemmer}
 import org.dbpedia.spotlight.db.stem.SnowballStemmer
 import org.dbpedia.spotlight.db.tokenize.LanguageIndependentTokenizer
+import opennlp.tools.util.Span
 
 /**
  * Copyright 2014 Idio
@@ -63,6 +64,65 @@ object FSARegenerator{
 
     val fsaDict = FSASpotter.buildDictionary(sfStore, tokenizer)
     MemoryStore.dump(fsaDict, new File(pathtoFolder, "fsa_dict.mem"))
+
+  }
+
+}
+
+
+class FSATester(modelFolder: String){
+
+
+  val tokenMemFile = new FileInputStream(new File(modelFolder, "tokens.mem"))
+  var tokenStore: MemoryTokenTypeStore = MemoryStore.loadTokenTypeStore(tokenMemFile)
+  val locale = new Locale("en", "US")
+  val stemmer: Stemmer = new SnowballStemmer("EnglishStemmer")
+  val tokenizer: TextTokenizer = new LanguageIndependentTokenizer(Set[String](), stemmer, locale, tokenStore)
+
+
+  val fsaDictionary = MemoryStore.loadFSADictionary(new FileInputStream(new File(new File(modelFolder).getParent,
+    "fsa_dict.mem")))
+
+
+  def generateCandidates(sentence: List[Token]): Seq[Span] = {
+
+    var spans = Array[Span]()
+
+    val ids = sentence.map(_.tokenType.id)
+    sentence.zipWithIndex.foreach {
+      case (t: Token, i: Int) => {
+
+        var currentState = FSASpotter.INITIAL_STATE
+        var j = i
+
+        do {
+          //Get the transition for the next token:
+          val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
+
+          //Add a span if this is a possible spot:
+          if (endState == FSASpotter.ACCEPTING_STATE)
+            spans :+= new Span(i, j+1, "m")
+
+          //Keep traversing the FSA until a rejecting state or the end of the sentence:
+          currentState = nextState
+          j += 1
+        } while ( currentState != FSASpotter.REJECTING_STATE && j < sentence.length )
+      }
+    }
+
+    spans
+  }
+
+  def testWord(text: String){
+
+    val tokens = tokenizer.tokenize(new Text(text))
+    val spans = generateCandidates(tokens)
+
+    spans.foreach{
+       span =>
+         println(span)
+
+    }
 
   }
 
