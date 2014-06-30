@@ -98,14 +98,20 @@ object StemStoreGenerator{
           sfStore.lowercaseMap.put(stemmedSurfaceForm, Array[Int](sf.id))
         }
 
-        val otherCandidates= sfStore.lowercaseMap.get(stemmedSurfaceForm).map{
-            candidateId:Int =>
-               sfStore.stringForID(candidateId)
+        val otherCandidatesArray = sfStore.lowercaseMap.get(stemmedSurfaceForm)
+        if (otherCandidatesArray.length >1){
 
-        }.mkString("\n\t\t")
-        println("added.."+ sf.name )
-        println("\t stem:"+ stemmedSurfaceForm)
-        println("\tsame set as"+otherCandidates)
+          val otherCandidates= otherCandidatesArray.map{
+            candidateId:Int =>
+              sfStore.stringForID(candidateId)
+
+          }.mkString("\n\t\t")
+          println("added.."+ sf.name )
+          println("\t stem:"+ stemmedSurfaceForm)
+          println("\tsame set as"+otherCandidates)
+        }
+
+
 
 
 
