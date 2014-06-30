@@ -32,13 +32,41 @@ import org.dbpedia.spotlight.db.tokenize.LanguageIndependentTokenizer
 
 class StemStoreGenerator {
 
-
-
-
-
-
 }
 
+
+object FSARegenerator{
+
+
+  val locale = new Locale("en", "US")
+  val stemmer: Stemmer = new SnowballStemmer("EnglishStemmer")
+
+  def main(args:Array[String]){
+
+    val pathtoFolder = args(0)
+
+
+    val quantizedStore = MemoryStore.loadQuantizedCountStore(new FileInputStream(new File(pathtoFolder, "quantized_counts.mem")))
+
+
+    val sfMemFile = new FileInputStream(new File(pathtoFolder, "sf.mem"))
+    var sfStore: MemorySurfaceFormStore = MemoryStore.loadSurfaceFormStore(sfMemFile, quantizedStore)
+
+    //load the token store
+    val tokenMemFile = new FileInputStream(new File(pathtoFolder, "tokens.mem"))
+    var tokenStore: MemoryTokenTypeStore = MemoryStore.loadTokenTypeStore(tokenMemFile)
+
+    //create the tokenizer
+    val tokenizer: TextTokenizer = new LanguageIndependentTokenizer(Set[String](), stemmer, locale, tokenStore)
+
+
+
+    val fsaDict = FSASpotter.buildDictionary(sfStore, tokenizer)
+    MemoryStore.dump(fsaDict, new File(pathtoFolder, "fsa_dict.mem"))
+
+  }
+
+}
 
 object StemStoreGenerator{
 
