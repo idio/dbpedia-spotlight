@@ -76,7 +76,7 @@ object StemStoreGenerator{
 
     // iterate the sfStore
 
-    sfStore.iterateSurfaceForms.filter(_.annotationProbability >= 0.05).grouped(100000).toList.par.flatMap(_.map{
+    sfStore.iterateSurfaceForms.grouped(100000).toList.par.flatMap(_.map{
       sf: SurfaceForm =>
       //Tokenize all SFs first
         ( sf, tokenizer.tokenize(new Text(sf.name)))
@@ -86,7 +86,7 @@ object StemStoreGenerator{
 
         val filteredTokens = tokens.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
 
-        val stemmedSurfaceForm = filteredTokens.mkString(" ")
+        val stemmedSurfaceForm = filteredTokens.map(_.token).mkString(" ")
         if (sfStore.lowercaseMap.containsKey(stemmedSurfaceForm)){
 
           val currentCandidates = sfStore.lowercaseMap.get(stemmedSurfaceForm)
