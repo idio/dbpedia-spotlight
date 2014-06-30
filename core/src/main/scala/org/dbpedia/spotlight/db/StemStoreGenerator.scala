@@ -86,7 +86,7 @@ object StemStoreGenerator{
 
         val filteredTokens = tokens.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
 
-        val stemmedSurfaceForm = filteredTokens.map(_.token).mkString(" ")
+        val stemmedSurfaceForm = filteredTokens.map(_.tokenType.tokenType).mkString(" ")
         if (sfStore.lowercaseMap.containsKey(stemmedSurfaceForm)){
 
           val currentCandidates = sfStore.lowercaseMap.get(stemmedSurfaceForm)
