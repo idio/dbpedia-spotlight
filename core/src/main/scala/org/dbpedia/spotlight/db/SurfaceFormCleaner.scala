@@ -46,7 +46,7 @@ object SurfaceFormCleaner {
     // Gets rid of the FAKE TOKENS
     // returns an stemmed version of the sentence
     val cleanedSentence = clean(sentence)
-    val filteredTokens = cleanedSentence.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
+    val filteredTokens = cleanedSentence.filter(_.tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME )
     val stemmedSpot = filteredTokens.map(_.tokenType.tokenType).mkString(" ")
     stemmedSpot
   }
