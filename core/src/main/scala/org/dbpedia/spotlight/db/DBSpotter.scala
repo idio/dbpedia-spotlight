@@ -140,6 +140,7 @@ abstract class DBSpotter(
 
           val (sf, p) = try {
             val sf = surfaceFormStore.getSurfaceForm(spot)
+            println("FOUND SF IN MAIN STORE")
             (sf, sf.annotationProbability)
           } catch {
             case e: SurfaceFormNotFoundException => {
@@ -164,7 +165,10 @@ abstract class DBSpotter(
           println("====================")
           (Some(sf), weights dot DBSpotter.spotFeatures(spot, p))
         }
-        case None => (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
+        case None => {
+          println("NO WEIGHTS FOUND...")
+          (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
+        }
       }
     } catch {
       case e: Exception =>{
