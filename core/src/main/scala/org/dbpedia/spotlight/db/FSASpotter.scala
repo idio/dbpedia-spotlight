@@ -20,13 +20,14 @@ class FSASpotter(
   stopwords: Set[String]
 ) extends DBSpotter(surfaceFormStore, spotFeatureWeights, stopwords) {
 
-  def generateCandidates(sentence: List[Token]): Seq[Span] = {
+  def generateCandidates(originalSentence: List[Token]): Seq[Span] = {
 
-    var spans = findUppercaseSequences(sentence.map(_.token).toArray)
+    var spans = Array[Span]()
 
-
+    val sentence = SurfaceFormCleaner.clean(originalSentence)
 
     val ids = sentence.map(_.tokenType.id)
+
     sentence.zipWithIndex.foreach {
       case (t: Token, i: Int) => {
 
@@ -34,21 +35,22 @@ class FSASpotter(
         var j = i
 
         do {
-          //Get the transition for the next token:
-          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).tokenType.toString)){
-                val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
+          if (sentence(j).tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME){
+            //Get the transition for the next token:
+            val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
-                //Add a span if this is a possible spot:
-                if (endState == FSASpotter.ACCEPTING_STATE)
-                  spans :+= new Span(i, j+1, "m")
+            //Add a span if this is a possible spot:
+            if (endState == FSASpotter.ACCEPTING_STATE)
+              spans :+= new Span(i, j+1, "m")
 
-                //Keep traversing the FSA until a rejecting state or the end of the sentence:
-                currentState = nextState
-                println("token not in bad words"+ sentence(j).tokenType.toString)
+            //Keep traversing the FSA until a rejecting state or the end of the sentence:
+            currentState = nextState
+            println("token not in bad words: "+ sentence(j).tokenType.tokenType)
           }else{
-            println("token  in bad words"+ sentence(j).tokenType.toString)
 
+            println("token  in bad words: "+ sentence(j).tokenType.tokenType)
           }
+
           j += 1
         } while ( currentState != FSASpotter.REJECTING_STATE && j < sentence.length )
       }
