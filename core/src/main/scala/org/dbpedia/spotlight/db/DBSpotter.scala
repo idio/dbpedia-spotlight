@@ -51,6 +51,10 @@ abstract class DBSpotter(
     sentences.foreach{ sentence: List[Token] =>
       val spans = generateCandidates(sentence)
 
+      println("")
+      println("SPANS")
+      println(spans)
+
       val tokenTypes = sentence.map(_.tokenType).toArray
 
       spans.sorted
