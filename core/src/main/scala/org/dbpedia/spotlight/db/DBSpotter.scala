@@ -79,10 +79,16 @@ abstract class DBSpotter(
 
               val spot = text.text.substring(startOffset, endOffset)
 
+
+
               //SpotlightLog.info(this.getClass, spot + ":" + chunkSpan.getType)
+
 
               val confidence = text.featureValue[Double]("confidence").getOrElse(0.5)
               val sfMatch = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
+
+
+
 
               SpotlightLog.debug(this.getClass, "type:"+chunkSpan.getType)
               if (sfMatch.isDefined) {
@@ -113,6 +119,12 @@ abstract class DBSpotter(
    */
   private def spotScore(spot: String): (Option[SurfaceForm], Double) = {
     try {
+      val tokens = tokenizer.tokenize(new Text(spot))
+      val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
+      println("===========================")
+      println("spot: "+ spot)
+      println("stemmed spot: "+ stemmedSpot)
+
       spotFeatureWeightVector match {
         case Some(weights) => {
 
@@ -121,14 +133,25 @@ abstract class DBSpotter(
             (sf, sf.annotationProbability)
           } catch {
             case e: SurfaceFormNotFoundException => {
-              surfaceFormStore.getRankedSurfaceFormCandidates(spot).headOption match {
-                case Some(p) => p
-                case None => throw e
+              println("NOT FOUND SURFACE FORM in MAIN STORE....")
+              surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot).headOption match {
+                case Some(p) => {
+                                 println("Found surface Form in Stem-Store")
+                                 println(p)
+                                 p
+                                }
+                case None =>{
+                             println("Not found in stem-store..")
+                             throw e
+                     }
+
+                }
               }
            }
-          }
+
 
           sf.name = spot
+          println("====================")
           (Some(sf), weights dot DBSpotter.spotFeatures(spot, p))
         }
         case None => (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
