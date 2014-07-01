@@ -127,7 +127,7 @@ object FSASpotter {
           System.err.println("Processed %d SFs.".format(z))
 
         val cleanedTokens = SurfaceFormCleaner.clean(tokens)
-        val filteredTokens = cleanedTokens.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
+        val filteredTokens = cleanedTokens.filter(_.tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME )
 
         filteredTokens
 

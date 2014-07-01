@@ -99,7 +99,7 @@ class FSATester(modelFolder: String){
         var j = i
 
         do {
-          if (sentence(j).token != SurfaceFormCleaner.FAKE_TOKEN_NAME){
+          if (sentence(j).tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME){
           //Get the transition for the next token:
           val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
