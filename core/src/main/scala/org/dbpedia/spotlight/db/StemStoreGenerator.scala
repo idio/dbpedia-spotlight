@@ -96,7 +96,7 @@ class FSATester(modelFolder: String){
         var j = i
 
         do {
-          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).tokenType.toString)){
+          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).token)){
           //Get the transition for the next token:
           val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
