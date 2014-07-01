@@ -30,6 +30,8 @@ object SurfaceFormCleaner {
    val FAKE_TOKEN_NAME = "FAKE_TOKEN__"
 
    def clean(sentence: List[Token]): List[Token] = {
+     // iterates the tokens of the sentence and replaces certain tokens for: <FAKE_TOKEN>
+     // Fake tokens are used in the FSA to ignore tokens as input for transitions
      sentence.map{ token =>
                 if (!setOfBadWords.contains(token.token.toLowerCase )){
                   token
@@ -39,5 +41,14 @@ object SurfaceFormCleaner {
                 }
      }
    }
+
+  def getStemmedVersion(sentence: List[Token]): String ={
+    // Gets rid of the FAKE TOKENS
+    // returns an stemmed version of the sentence
+    val cleanedSentence = clean(sentence)
+    val filteredTokens = cleanedSentence.filter(_.token != SurfaceFormCleaner.FAKE_TOKEN_NAME )
+    val stemmedSpot = filteredTokens.map(_.tokenType.tokenType).mkString(" ")
+    stemmedSpot
+  }
 
 }
