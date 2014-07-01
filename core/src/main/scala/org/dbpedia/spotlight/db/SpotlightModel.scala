@@ -91,7 +91,7 @@ object SpotlightModel {
     val c = properties.getProperty("opennlp_parallel", Runtime.getRuntime.availableProcessors().toString).toInt
     val cores = (1 to c)
 
-    val tokenizer: TextTokenizer = if(new File(modelFolder, "opennlp").exists()) {
+    implicit val tokenizer: TextTokenizer = if(new File(modelFolder, "opennlp").exists()) {
 
       //Create the tokenizer:
       val posTagger = new File(modelFolder, "opennlp/pos-maxent.bin")
@@ -161,7 +161,8 @@ object SpotlightModel {
         dict,
         sfStore,
         Some(loadSpotterThresholds(new File(modelFolder, "spotter_thresholds.txt"))),
-        stopwords
+        stopwords,
+        tokenizer
       ).asInstanceOf[Spotter]
     }
 

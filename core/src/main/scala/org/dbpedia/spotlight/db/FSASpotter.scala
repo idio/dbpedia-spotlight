@@ -17,8 +17,11 @@ class FSASpotter(
   fsaDictionary: FSADictionary,
   surfaceFormStore: SurfaceFormStore,
   spotFeatureWeights: Option[Seq[Double]],
-  stopwords: Set[String]
+  stopwords: Set[String],
+  implicit val textTokenizer: TextTokenizer
 ) extends DBSpotter(surfaceFormStore, spotFeatureWeights, stopwords) {
+
+  this.tokenizer = textTokenizer
 
   def generateCandidates(originalSentence: List[Token]): Seq[Span] = {
 
