@@ -74,7 +74,12 @@ abstract class DBSpotter(
           //Then, do the same in the other direction:
           (firstToken to lastToken).reverse.foreach{ endToken =>
             tokenSeqs += Pair(firstToken, endToken)
+
           }
+
+
+          println("TOKEN SEQS")
+          tokenSeqs.foreach(println)
 
           tokenSeqs.foreach{
             case (startToken: Int, endToken: Int) => {
@@ -82,6 +87,7 @@ abstract class DBSpotter(
               val endOffset = sentence(endToken).offset + sentence(endToken).token.length
 
               val spot = text.text.substring(startOffset, endOffset)
+              println("SPOT: "+ spot)
 
 
 
@@ -166,6 +172,7 @@ abstract class DBSpotter(
   }
 
   protected def surfaceFormMatch(spot: String, confidence: Double): Option[SurfaceForm] = {
+    println("Starting surfaceForm Match")
     val score: (Option[SurfaceForm], Double) = spotScore(spot)
     score._1 match {
       case Some(sf) => SpotlightLog.debug(this.getClass, sf.toString + ":" + score._2)
