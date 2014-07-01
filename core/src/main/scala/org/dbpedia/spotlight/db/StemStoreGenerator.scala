@@ -84,11 +84,14 @@ class FSATester(modelFolder: String){
     "fsa_dict.mem")))
 
 
-  def generateCandidates(sentence: List[Token]): Seq[Span] = {
+  def generateCandidates(originalSentence: List[Token]): Seq[Span] = {
 
     var spans = Array[Span]()
 
+    val sentence = SurfaceFormCleaner.clean(originalSentence)
+
     val ids = sentence.map(_.tokenType.id)
+
     sentence.zipWithIndex.foreach {
       case (t: Token, i: Int) => {
 
@@ -96,7 +99,7 @@ class FSATester(modelFolder: String){
         var j = i
 
         do {
-          if (!SurfaceFormCleaner.setOfBadWords.contains(sentence(j).token)){
+          if (sentence(j).token != SurfaceFormCleaner.FAKE_TOKEN_NAME){
           //Get the transition for the next token:
           val (endState, nextState) = fsaDictionary.next(currentState, ids(j))
 
