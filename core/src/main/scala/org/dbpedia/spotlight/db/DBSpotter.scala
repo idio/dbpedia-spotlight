@@ -167,7 +167,11 @@ abstract class DBSpotter(
         case None => (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
       }
     } catch {
-      case e: Exception => (None, 0.0)
+      case e: Exception =>{
+          println("exception :" )
+          e.printStackTrace()
+          (None, 0.0)
+      }
     }
   }
 
