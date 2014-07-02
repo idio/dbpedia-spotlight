@@ -142,6 +142,8 @@ object FSASpotter {
         val ids = filteredTokens.map(_.tokenType.id).toArray
         println("ids: "+ids)
 
+       if (filteredTokens.size> 0){
+
         //For each token in the SF, add the transitions to the FSA:
         var currentState = INITIAL_STATE
         if (ids.size > 1)
@@ -152,6 +154,7 @@ object FSASpotter {
 
         addTransition(currentState, ids.last, ACCEPTING_STATE)
       }
+     }
       case _ =>
     }
 
