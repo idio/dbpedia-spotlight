@@ -131,16 +131,14 @@ object FSASpotter {
         if ((z % 100000) == 0)
           System.err.println("Processed %d SFs.".format(z))
 
-       println("sf: " + sf)
-
 
         val cleanedTokens = SurfaceFormCleaner.clean(tokens)
 
         val filteredTokens = cleanedTokens.filter(_.tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME )
 
-       println("filteredTokens: " + filteredTokens)
+
         val ids = filteredTokens.map(_.tokenType.id).toArray
-        println("ids: "+ids)
+
 
        if (filteredTokens.size> 0){
 
