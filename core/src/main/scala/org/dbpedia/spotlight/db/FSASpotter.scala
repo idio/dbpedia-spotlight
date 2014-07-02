@@ -134,8 +134,6 @@ object FSASpotter {
         val cleanedTokens = SurfaceFormCleaner.clean(tokens)
         val filteredTokens = cleanedTokens.filter(_.tokenType.tokenType != SurfaceFormCleaner.FAKE_TOKEN_NAME )
 
-        filteredTokens
-
         val ids = filteredTokens.map(_.tokenType.id).toArray
 
         //For each token in the SF, add the transitions to the FSA:
