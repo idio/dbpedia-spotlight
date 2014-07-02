@@ -39,12 +39,12 @@ abstract class DBSpotter(
 
   val MIN_CONFIDENCE = 0.1
 
-  def extract(text: Text): java.util.List[SurfaceFormOccurrence] = {
+  def extract(text: Text): java.util.List[java.util.ArrayList[SurfaceFormOccurrence]] = {
 
     if (tokenizer != null)
       tokenizer.tokenizeMaybe(text)
 
-    var spots = ListBuffer[SurfaceFormOccurrence]()
+    var spots = ListBuffer[Seq[SurfaceFormOccurrence]]()
     val sentences: List[List[Token]] = DBSpotter.tokensToSentences(text.featureValue[List[Token]]("tokens").get)
 
     //Go through all sentences
@@ -95,18 +95,20 @@ abstract class DBSpotter(
 
 
               val confidence = text.featureValue[Double]("confidence").getOrElse(0.5)
-              val sfMatch = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
+              val sfMatches = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
 
 
 
 
               SpotlightLog.debug(this.getClass, "type:"+chunkSpan.getType)
-              if (sfMatch.isDefined) {
+              if (sfMatches.isDefined) {
                 //The sub-chunk is in the dictionary, finish the processing of this chunk
-                val spotOcc = new SurfaceFormOccurrence(sfMatch.get, text, startOffset, Provenance.Annotation, spotScore(spot)._2)
-                spotOcc.setFeature(new Nominal("spot_type", chunkSpan.getType))
-                spotOcc.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
-                spots += spotOcc
+                spots += sfMatches.get.map{ (sf: SurfaceForm, score: Double) =>
+                  val spotOcc = new SurfaceFormOccurrence(sf, text, startOffset, Provenance.Annotation, score)
+                  spotOcc.setFeature(new Nominal("spot_type", chunkSpan.getType))
+                  spotOcc.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
+                  spotOcc
+                }
                 break()
               }
             }
@@ -127,76 +129,70 @@ abstract class DBSpotter(
    * @param spot
    * @return
    */
-  private def spotScore(spot: String): (Option[SurfaceForm], Double) = {
+  private def spotScore(spot: String): Option[List[(SurfaceForm, Double)]] = {
     try {
-      val tokens = tokenizer.tokenize(new Text(spot))
-      val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
-      println("===========================")
-      println("spot: "+ spot)
-      println("stemmed spot: "+ stemmedSpot)
+          val tokens = tokenizer.tokenize(new Text(spot))
+          val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
+          println("===========================")
+          println("spot: "+ spot)
+          println("stemmed spot: "+ stemmedSpot)
 
-      spotFeatureWeightVector match {
-        case Some(weights) => {
+          // ignore the Main SF Store
+          // read from the stem store
+          val rankedCandidates = surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot)
 
-          val (sf, p) = try {
-            val sf = surfaceFormStore.getSurfaceForm(spot)
-            println("FOUND SF IN MAIN STORE")
-            (sf, sf.annotationProbability)
-          } catch {
-            case e: SurfaceFormNotFoundException => {
-              println("NOT FOUND SURFACE FORM in MAIN STORE....")
-              surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot).headOption match {
-                case Some(p) => {
-                                 println("Found surface Form in Stem-Store")
-                                 println(p)
-                                 p
-                                }
-                case None =>{
-                             println("Not found in stem-store..")
-                             throw e
-                     }
+          // if list is empty  rise exception
+          if (rankedCandidates.size < 1){
+            None
+          }
 
-                }
-              }
-           }
+          // rescoring based on spot features
+          val rerankedScores = rankedCandidates.map{
+            (sf: SurfaceForm, p: Double)=>
+              (sf, weights dot DBSpotter.spotFeatures(sf.name, p) )
+          }
 
+          // propagate the matched surface forms
+          Some(rerankedScores)
 
-          sf.name = spot
-          println("====================")
-          (Some(sf), weights dot DBSpotter.spotFeatures(spot, p))
-        }
-        case None => {
-          println("NO WEIGHTS FOUND...")
-          (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
-        }
-      }
     } catch {
       case e: Exception =>{
           println("exception :" )
           e.printStackTrace()
-          (None, 0.0)
+          None
       }
     }
   }
 
-  protected def surfaceFormMatch(spot: String, confidence: Double): Option[SurfaceForm] = {
+  protected def surfaceFormMatch(spot: String, confidence: Double): Option[Seq[(SurfaceForm, Double)]] = {
     println("Starting surfaceForm Match")
-    val score: (Option[SurfaceForm], Double) = spotScore(spot)
-    score._1 match {
-      case Some(sf) => SpotlightLog.debug(this.getClass, sf.toString + ":" + score._2)
-      case None => SpotlightLog.debug(this.getClass, "None :" + score._2)
+    val scores: Option[Seq[(SurfaceForm, Double)]] = spotScore(spot)
+
+
+    scores match {
+
+
+      case Some(seqOfScores) => SpotlightLog.debug(this.getClass,
+                                                seqOfScores.get.map{
+                                                  (sf: SurfaceForm, prob: Double) =>
+                                                    sf.name+" "+prob.toString
+                                                }.mkString(" ")
+                                               )
+      case None => SpotlightLog.debug(this.getClass, "None :" + spot)
     }
 
-    if (spotFeatureWeightVector.isDefined)
-       if(score._2 >= confidence)
-         score._1
-       else
-        None
-    else
-      if(score._2 >= 0.25)
-        score._1
-      else
-        None
+
+    var sfConfidenceThreshold = 0.25
+    if (spotFeatureWeightVector.isDefined){
+      sfConfidenceThreshold = confidence
+    }
+    // filter matched SurfaceForms
+    scores match{
+      case Some(seqOfScores) =>{
+        seqOfScores.filter(_._2 >= confidence)
+      }
+      case None => None
+    }
 
   }
 
@@ -210,9 +206,18 @@ abstract class DBSpotter(
    * @param spots
    * @return
    */
-  def dropOverlappingSpots(spots: Seq[SurfaceFormOccurrence]): java.util.LinkedList[SurfaceFormOccurrence] = {
+  def dropOverlappingSpots(spots: Seq[Seq[SurfaceFormOccurrence]]): java.util.LinkedList[java.util.ArrayList[SurfaceFormOccurrence]] = {
 
-    val sortedSpots = spots.distinct.sortBy(sf => (sf.textOffset, sf.surfaceForm.name.length) )
+    val sortedSpots = spots.sortBy(sfList => (sfList.first.textOffset, sfList.first.surfaceForm.name.length) )
+
+    //get best Spot for each Seq
+    val bestSpots = sortedSpots.map{  ocurrencesForSpot: Seq[SurfaceFormOccurrence] =>
+      ocurrencesForSpot.sortBy(_.spotProb).last
+    }
+
+
+
+
 
     var remove = Set[Int]()
     var lastSpot: SurfaceFormOccurrence = null
@@ -220,7 +225,7 @@ abstract class DBSpotter(
     var i = 0
     while (i < sortedSpots.size) {
 
-      val spot = sortedSpots(i)
+      val spot = bestSpots(i)
 
       if (lastSpot != null && lastSpot.intersects(spot)) {
 
@@ -254,8 +259,8 @@ abstract class DBSpotter(
     }
 
     //This is super inefficient :(
-    val list = new java.util.LinkedList[SurfaceFormOccurrence]()
-    sortedSpots.zipWithIndex.foreach{ case (s: SurfaceFormOccurrence, i: Int) =>
+    val list = new java.util.LinkedList[java.util.ArrayList[SurfaceFormOccurrence]]()
+    sortedSpots.zipWithIndex.foreach{ case (s: Seq[SurfaceFormOccurrence], i: Int) =>
       if(!remove.contains(i))
         list.add(s)
     }
