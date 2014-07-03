@@ -14,6 +14,9 @@ import java.util.regex.Pattern
 import org.apache.commons.lang.StringUtils
 import org.dbpedia.spotlight.log.SpotlightLog
 
+import scala.collection.JavaConversions._
+
+
 abstract class DBSpotter(
  surfaceFormStore: SurfaceFormStore,
  spotFeatureWeights: Option[Seq[Double]],
@@ -101,9 +104,10 @@ abstract class DBSpotter(
 
 
               SpotlightLog.debug(this.getClass, "type:"+chunkSpan.getType)
+
               if (sfMatches.isDefined) {
                 //The sub-chunk is in the dictionary, finish the processing of this chunk
-                spots += sfMatches.get.map{ (sf: SurfaceForm, score: Double) =>
+                spots += sfMatches.get.map{ case (sf: SurfaceForm, score: Double) =>
                   val spotOcc = new SurfaceFormOccurrence(sf, text, startOffset, Provenance.Annotation, score)
                   spotOcc.setFeature(new Nominal("spot_type", chunkSpan.getType))
                   spotOcc.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
@@ -129,8 +133,11 @@ abstract class DBSpotter(
    * @param spot
    * @return
    */
-  private def spotScore(spot: String): Option[List[(SurfaceForm, Double)]] = {
+  private def spotScore(spot: String): Option[Seq[(SurfaceForm, Double)]] = {
     try {
+
+      spotFeatureWeightVector match {
+        case Some(weights) => {
           val tokens = tokenizer.tokenize(new Text(spot))
           val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
           println("===========================")
@@ -148,13 +155,13 @@ abstract class DBSpotter(
 
           // rescoring based on spot features
           val rerankedScores = rankedCandidates.map{
-            (sf: SurfaceForm, p: Double)=>
+           case (sf: SurfaceForm, p: Double)=>
               (sf, weights dot DBSpotter.spotFeatures(sf.name, p) )
           }
 
           // propagate the matched surface forms
           Some(rerankedScores)
-
+        }}
     } catch {
       case e: Exception =>{
           println("exception :" )
@@ -173,8 +180,8 @@ abstract class DBSpotter(
 
 
       case Some(seqOfScores) => SpotlightLog.debug(this.getClass,
-                                                seqOfScores.get.map{
-                                                  (sf: SurfaceForm, prob: Double) =>
+                                                seqOfScores.map{
+                                                 case (sf: SurfaceForm, prob: Double) =>
                                                     sf.name+" "+prob.toString
                                                 }.mkString(" ")
                                                )
@@ -189,7 +196,7 @@ abstract class DBSpotter(
     // filter matched SurfaceForms
     scores match{
       case Some(seqOfScores) =>{
-        seqOfScores.filter(_._2 >= confidence)
+        Some(seqOfScores.filter(_._2 >= confidence))
       }
       case None => None
     }
@@ -262,7 +269,7 @@ abstract class DBSpotter(
     val list = new java.util.LinkedList[java.util.ArrayList[SurfaceFormOccurrence]]()
     sortedSpots.zipWithIndex.foreach{ case (s: Seq[SurfaceFormOccurrence], i: Int) =>
       if(!remove.contains(i))
-        list.add(s)
+        list.add(ListBuffer(s: _*).asInstanceOf[java.util.ArrayList[SurfaceFormOccurrence]])
     }
     list
   }

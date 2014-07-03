@@ -33,7 +33,7 @@ public interface Spotter {
 	/**
 	 * Extracts a set of surface form occurrences from the text
 	 */
-	public List<SurfaceFormOccurrence> extract(Text text) throws SpottingException;
+	public List<java.util.ArrayList<SurfaceFormOccurrence> > extract(Text text) throws SpottingException;
 
     /**
      * Every spotter has a name that describes its strategy
