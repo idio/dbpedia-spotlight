@@ -1,8 +1,8 @@
 package org.dbpedia.spotlight.db
 
 import org.dbpedia.spotlight.db.memory.{MemoryTokenTypeStore, MemoryStore, MemorySurfaceFormStore}
-import java.io.{File, FileInputStream}
-import org.dbpedia.spotlight.model.{Text, Token, SurfaceForm}
+import java.io.{FileWriter, File, FileInputStream}
+import org.dbpedia.spotlight.model.{Candidate, Text, Token, SurfaceForm}
 import java.util.Locale
 import org.dbpedia.spotlight.db.model.{TextTokenizer, Stemmer}
 import org.dbpedia.spotlight.db.stem.SnowballStemmer
@@ -34,6 +34,41 @@ import opennlp.tools.util.Span
 class StemStoreGenerator {
 
 }
+
+object TopicToSFGenerator{
+
+
+  def main(args: Array[String]){
+
+    val pathtoFolder = args(0)
+
+    val quantizedStore = MemoryStore.loadQuantizedCountStore(new FileInputStream(new File(pathtoFolder, "quantized_counts.mem")))
+    var sfStore: MemorySurfaceFormStore = MemoryStore.loadSurfaceFormStore(new FileInputStream(new File(pathtoFolder, "sf.mem")), quantizedStore)
+    var resStore = MemoryStore.loadResourceStore(new FileInputStream(new File(pathtoFolder, "res.mem")), quantizedStore)
+    var candidateStore = MemoryStore.loadCandidateMapStore(new FileInputStream(new File(pathtoFolder, "candmap.mem")), resStore, quantizedStore)
+
+
+    val fw = new FileWriter("uri_surfaceForm_candidateSupport.txt")
+
+    sfStore.iterateSurfaceForms.foreach{
+
+      surfaceForm:SurfaceForm =>
+        candidateStore.getCandidates(surfaceForm).foreach{ candidate: Candidate=>
+          val lineData = Array[String](candidate.resource.uri,surfaceForm.name, candidate.support.toString)
+          fw.write(lineData.mkString("\t")+"\n")
+        }
+
+    }
+    fw.close()
+
+
+  }
+
+
+
+
+}
+
 
 
 object FSARegenerator{
