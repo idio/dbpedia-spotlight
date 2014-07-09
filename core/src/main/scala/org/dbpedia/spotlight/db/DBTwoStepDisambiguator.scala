@@ -109,12 +109,12 @@ class DBTwoStepDisambiguator(
         val candidateRes = {
 
 
-          val cands = sfOcc.surfaceForms.foreach{
+          val cands = sfOcc.surfaceForms.map{
               surfaceForm: SurfaceForm =>
-                   cands ++= candidateSearcher.getCandidates(surfaceForm)
-          }
+                   candidateSearcher.getCandidates(surfaceForm)
+          }.flatten
 
-          val cands = candidateSearcher.getCandidates(sfOcc.surfaceForm)
+
           SpotlightLog.debug(this.getClass, "# candidates for: %s = %s.", sfOcc.surfaceForm, cands.size)
 
           if (cands.size > MAX_CANDIDATES) {
