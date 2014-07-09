@@ -175,6 +175,29 @@ def testWord(text: String){
 
 }
 
+object SurfaceFormStoreChecker{
+
+  def main(args:Array[String]){
+    println("reading sf store")
+    val pathToModel = args(0)
+    val surfaceform = args(1)
+    searchInSfStore(pathToModel,surfaceform)
+  }
+
+  def searchInSfStore(pathtoModel:String,surfaceform:String){
+    val quantizedStore = MemoryStore.loadQuantizedCountStore(new FileInputStream(new File(pathtoModel, "quantized_counts.mem")))
+    val sfMemFile = new FileInputStream(new File(pathtoModel, "sf.mem"))
+    var sfStore: MemorySurfaceFormStore = MemoryStore.loadSurfaceFormStore(sfMemFile, quantizedStore)
+
+    println("looking for..."+ surfaceform)
+    println("\t"+ sfStore.lowercaseMap.containsKey(surfaceform))
+    println("")
+
+  }
+
+
+}
+
 object StemStoreGenerator{
 
 

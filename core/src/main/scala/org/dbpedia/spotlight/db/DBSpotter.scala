@@ -165,7 +165,7 @@ abstract class DBSpotter(
           // if list is empty  rise exception
           if (rankedCandidates.size < 1){
             println("NOT RNAKED CANDIDATES IN STEM STORE")
-            None
+            return None
           }
 
 
@@ -177,14 +177,14 @@ abstract class DBSpotter(
 
           //propagate the matched surface forms
           println("found RNAKED CANDIDATES IN STEM STORE")
-          Some(rerankedScores)
+          return Some(rerankedScores)
        }}
 
     } catch {
       case e: Exception =>{
           println("exception :" )
           e.printStackTrace()
-          None
+         return None
       }
     }
   }
