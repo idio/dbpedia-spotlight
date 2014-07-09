@@ -148,7 +148,7 @@ class MemorySurfaceFormStore
       (candSf,
         //Score for the surface form (including the case adaptation):
         editDistanceScore(candSf.name, surfaceform) *
-        candSf.annotationProbability * 2.0 * cTotal
+        candSf.annotationProbability 
        // ((2.0 * cTotal.toDouble) / (cLower+cTotal))
       )
     }.toSeq.sortBy(-_._2)
