@@ -95,18 +95,31 @@ abstract class DBSpotter(
 
 
               val confidence = text.featureValue[Double]("confidence").getOrElse(0.5)
-              val sfMatch = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
+              val sfMatches = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
 
 
 
 
               SpotlightLog.debug(this.getClass, "type:"+chunkSpan.getType)
-              if (sfMatch.isDefined) {
+              if (sfMatches.isDefined) {
+
+                var spotOcc = None: Option[SurfaceFormOccurrence]
+
+                sfMatches.get.foreach{ case (sf: SurfaceForm, score: Double) =>
+                   if( spotOcc.isDefined ){
+                     spotOcc.get.addCandidate(sf, text, startOffset, Provenance.Annotation, score)
+                   }
+                   else{
+                     spotOcc = Some(new SurfaceFormOccurrence(sf, text, startOffset, Provenance.Annotation, score))
+                   }
+
+                }
+
                 //The sub-chunk is in the dictionary, finish the processing of this chunk
-                val spotOcc = new SurfaceFormOccurrence(sfMatch.get, text, startOffset, Provenance.Annotation, spotScore(spot)._2)
-                spotOcc.setFeature(new Nominal("spot_type", chunkSpan.getType))
-                spotOcc.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
-                spots += spotOcc
+                //val spotOcc = new SurfaceFormOccurrence(surfaceForm, text, startOffset, Provenance.Annotation, score)
+                spotOcc.get.setFeature(new Nominal("spot_type", chunkSpan.getType))
+                spotOcc.get.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
+                spots += spotOcc.get
                 break()
               }
             }
@@ -127,77 +140,78 @@ abstract class DBSpotter(
    * @param spot
    * @return
    */
-  private def spotScore(spot: String): (Option[SurfaceForm], Double) = {
+  private def spotScore(spot: String): Option[Seq[(SurfaceForm, Double)]] = {
     try {
-      val tokens = tokenizer.tokenize(new Text(spot))
-      val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
-      println("===========================")
-      println("spot: "+ spot)
-      println("stemmed spot: "+ stemmedSpot)
 
       spotFeatureWeightVector match {
         case Some(weights) => {
 
-          val (sf, p) = try {
-            val sf = surfaceFormStore.getSurfaceForm(spot)
-            println("FOUND SF IN MAIN STORE")
-            (sf, sf.annotationProbability)
-          } catch {
-            case e: SurfaceFormNotFoundException => {
-              println("NOT FOUND SURFACE FORM in MAIN STORE....")
-              surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot).headOption match {
-                case Some(p) => {
-                                 println("Found surface Form in Stem-Store")
-                                 println(p)
-                                 p
-                                }
-                case None =>{
-                             println("Not found in stem-store..")
-                             throw e
-                     }
 
-                }
-              }
+          val tokens = tokenizer.tokenize(new Text(spot))
+          val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
+          println("===========================")
+          println("spot: "+ spot)
+          println("stemmed spot: "+ stemmedSpot)
+
+          // ignore the Main SF Store
+          // read from the stem store
+          val rankedCandidates = surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot)
+
+          // if list is empty  rise exception
+          if (rankedCandidates.size < 1){
+            None
+          }
+
+
+          // rescoring based on spot features
+          val rerankedScores = rankedCandidates.map{
+          case (sf: SurfaceForm, p: Double)=>
+              (sf, weights dot DBSpotter.spotFeatures(sf.name, p) )
            }
 
+          //propagate the matched surface forms
+          Some(rerankedScores)
+       }}
 
-          sf.name = spot
-          println("====================")
-          (Some(sf), weights dot DBSpotter.spotFeatures(spot, p))
-        }
-        case None => {
-          println("NO WEIGHTS FOUND...")
-          (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
-        }
-      }
     } catch {
       case e: Exception =>{
           println("exception :" )
           e.printStackTrace()
-          (None, 0.0)
+          None
       }
     }
   }
 
-  protected def surfaceFormMatch(spot: String, confidence: Double): Option[SurfaceForm] = {
+  protected def surfaceFormMatch(spot: String, confidence: Double): Option[Seq[(SurfaceForm, Double)]] = {
     println("Starting surfaceForm Match")
-    val score: (Option[SurfaceForm], Double) = spotScore(spot)
-    score._1 match {
-      case Some(sf) => SpotlightLog.debug(this.getClass, sf.toString + ":" + score._2)
-      case None => SpotlightLog.debug(this.getClass, "None :" + score._2)
+    val scores: Option[Seq[(SurfaceForm, Double)]] = spotScore(spot)
+
+    scores match {
+
+
+      case Some(seqOfScores) => SpotlightLog.debug(this.getClass,
+        seqOfScores.map{
+          case (sf: SurfaceForm, prob: Double) =>
+            sf.name+" "+prob.toString
+        }.mkString(" ")
+      )
+
+       case None => SpotlightLog.debug(this.getClass, "None :" + spot)
+
     }
 
-    if (spotFeatureWeightVector.isDefined)
-       if(score._2 >= confidence)
-         score._1
-       else
-        None
-    else
-      if(score._2 >= 0.25)
-        score._1
-      else
-        None
 
+      var sfConfidenceThreshold = 0.25
+      if (spotFeatureWeightVector.isDefined){
+        sfConfidenceThreshold = confidence
+      }
+      // filter matched SurfaceForms
+      scores match{
+        case Some(seqOfScores) =>{
+          Some(seqOfScores.filter(_._2 >= confidence))
+        }
+        case None => None
+      }
   }
 
 
