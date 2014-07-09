@@ -102,7 +102,7 @@ class MemorySurfaceFormStore
   private def getLowercaseCandidateList(surfaceform: String): Array[Int] = {
     val cs = lowercaseMap.get(surfaceform.toLowerCase)
 
-    if(cs != null && cs.size > 1)
+    if(cs != null)//&& cs.size > 1)
       cs.tail.toArray
     else
       Array[Int]()
@@ -148,8 +148,8 @@ class MemorySurfaceFormStore
       (candSf,
         //Score for the surface form (including the case adaptation):
         editDistanceScore(candSf.name, surfaceform) *
-        candSf.annotationProbability *
-        ((2.0 * cTotal.toDouble) / (cLower+cTotal))
+        candSf.annotationProbability * 2.0 * cToal
+       // ((2.0 * cTotal.toDouble) / (cLower+cTotal))
       )
     }.toSeq.sortBy(-_._2)
 
