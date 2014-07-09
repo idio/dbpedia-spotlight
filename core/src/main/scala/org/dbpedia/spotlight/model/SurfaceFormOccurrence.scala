@@ -22,11 +22,25 @@ class SurfaceFormOccurrence(val surfaceForm : SurfaceForm,
                             val provenance : Provenance.Value,
                             var spotProb : Double = -1) extends HasFeatures with Ordered[SurfaceFormOccurrence]
 {
+    val surfaceForms = scala.collection.mutable.ArrayBuffer[SurfaceForm](surfaceForm)
+    val spotProbs  = scala.collection.mutable.ArrayBuffer[SurfaceForm](spotProb)
+    val provenances = scala.collection.mutable.ArrayBuffer[Provenance.Value](provenance)
+    val textOffsets = scala.collection.mutable.ArrayBuffer[Int](textOffset)
 
+
+    def addCandidate(surfaceForm : SurfaceForm,  context : Text,  textOffset : Int,
+                     provenance : Provenance.Value, spotProb : Double = -1){
+
+      surfaceForms.append(surfaceForm)
+      textOffsets.append(textOffset)
+      provenances.append(provenance)
+      spotProbs.append(spotProb)
+
+    }
 
     def this(surfaceForm : SurfaceForm, context : Text, textOffset : Int) =
     {
-        this(surfaceForm, context, textOffset, provenance = Provenance.Undefined)
+        this(surfaceForm, context, textOffset,  Provenance.Undefined)
     }
 
     def setTextOffset(newTextOffset: Int) {
