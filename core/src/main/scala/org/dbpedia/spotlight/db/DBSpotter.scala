@@ -115,12 +115,17 @@ abstract class DBSpotter(
 
                 }
 
-                //The sub-chunk is in the dictionary, finish the processing of this chunk
-                //val spotOcc = new SurfaceFormOccurrence(surfaceForm, text, startOffset, Provenance.Annotation, score)
-                spotOcc.get.setFeature(new Nominal("spot_type", chunkSpan.getType))
-                spotOcc.get.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
-                spots += spotOcc.get
-                break()
+                if(spotOcc.isDefined){
+
+                  //The sub-chunk is in the dictionary, finish the processing of this chunk
+                  //val spotOcc = new SurfaceFormOccurrence(surfaceForm, text, startOffset, Provenance.Annotation, score)
+                  spotOcc.get.setFeature(new Nominal("spot_type", chunkSpan.getType))
+                  spotOcc.get.setFeature(new Feature("token_types", tokenTypes.slice(startToken, lastToken)))
+                  spots += spotOcc.get
+                  break()
+                }
+
+
               }
             }
           }
