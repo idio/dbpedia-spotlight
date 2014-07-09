@@ -26,6 +26,7 @@ class SurfaceFormOccurrence(val _surfaceForm : SurfaceForm,
     val spotProbs  = scala.collection.mutable.ArrayBuffer[Double](_spotProb)
     val provenances = scala.collection.mutable.ArrayBuffer[Provenance.Value](_provenance)
     val textOffsets = scala.collection.mutable.ArrayBuffer[Int](textOffset)
+    val provenance = _provenance
 
     def surfaceForm = surfaceForms(spotProbs.zipWithIndex.maxBy(_._1)._2)
     def spotProb = spotProbs.max
