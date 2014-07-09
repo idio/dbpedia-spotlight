@@ -103,7 +103,7 @@ class MemorySurfaceFormStore
     val cs = lowercaseMap.get(surfaceform.toLowerCase)
 
     if(cs != null)//&& cs.size > 1)
-      cs.tail.toArray
+      cs
     else
       Array[Int]()
   }
@@ -148,7 +148,7 @@ class MemorySurfaceFormStore
       (candSf,
         //Score for the surface form (including the case adaptation):
         editDistanceScore(candSf.name, surfaceform) *
-        candSf.annotationProbability 
+        candSf.annotationProbability
        // ((2.0 * cTotal.toDouble) / (cLower+cTotal))
       )
     }.toSeq.sortBy(-_._2)
