@@ -16,16 +16,19 @@
 
 package org.dbpedia.spotlight.model
 
-class SurfaceFormOccurrence(val surfaceForm : SurfaceForm,
+class SurfaceFormOccurrence(val _surfaceForm : SurfaceForm,
                             val context : Text,
                             var textOffset : Int,
-                            val provenance : Provenance.Value,
-                            var spotProb : Double = -1) extends HasFeatures with Ordered[SurfaceFormOccurrence]
+                            val _provenance : Provenance.Value,
+                            var _spotProb : Double = -1) extends HasFeatures with Ordered[SurfaceFormOccurrence]
 {
-    val surfaceForms = scala.collection.mutable.ArrayBuffer[SurfaceForm](surfaceForm)
-    val spotProbs  = scala.collection.mutable.ArrayBuffer[SurfaceForm](spotProb)
-    val provenances = scala.collection.mutable.ArrayBuffer[Provenance.Value](provenance)
+    val surfaceForms = scala.collection.mutable.ArrayBuffer[SurfaceForm](_surfaceForm)
+    val spotProbs  = scala.collection.mutable.ArrayBuffer[Double](_spotProb)
+    val provenances = scala.collection.mutable.ArrayBuffer[Provenance.Value](_provenance)
     val textOffsets = scala.collection.mutable.ArrayBuffer[Int](textOffset)
+
+    def surfaceForm = surfaceForms(spotProbs.zipWithIndex.maxBy(_._1)._2)
+    def spotProb = spotProbs.max
 
 
     def addCandidate(surfaceForm : SurfaceForm,  context : Text,  textOffset : Int,
