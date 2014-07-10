@@ -154,7 +154,7 @@ abstract class DBSpotter(
                 case None =>{
                              //println("Not found in stem-store..")
                              //println(stemmedSpot)
-                              throw e
+                             throw e
                     }
 
                 }
