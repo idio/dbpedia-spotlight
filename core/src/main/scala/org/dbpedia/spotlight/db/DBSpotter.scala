@@ -51,9 +51,9 @@ abstract class DBSpotter(
     sentences.foreach{ sentence: List[Token] =>
       val spans = generateCandidates(sentence)
 
-      println("")
-      println("SPANS")
-      println(spans)
+      //println("")
+      //println("SPANS")
+      //println(spans)
 
       val tokenTypes = sentence.map(_.tokenType).toArray
 
@@ -78,8 +78,8 @@ abstract class DBSpotter(
           }
 
 
-          println("TOKEN SEQS")
-          tokenSeqs.foreach(println)
+          //println("TOKEN SEQS")
+          //tokenSeqs.foreach(println)
 
           tokenSeqs.foreach{
             case (startToken: Int, endToken: Int) => {
@@ -87,7 +87,7 @@ abstract class DBSpotter(
               val endOffset = sentence(endToken).offset + sentence(endToken).token.length
 
               val spot = text.text.substring(startOffset, endOffset)
-              println("SPOT: "+ spot)
+              //println("SPOT: "+ spot)
 
 
 
@@ -131,30 +131,31 @@ abstract class DBSpotter(
     try {
       val tokens = tokenizer.tokenize(new Text(spot))
       val stemmedSpot = SurfaceFormCleaner.getStemmedVersion(tokens)
-      println("===========================")
-      println("spot: "+ spot)
-      println("stemmed spot: "+ stemmedSpot)
+      //println("===========================")
+      //println("spot: "+ spot)
+      //println("stemmed spot: "+ stemmedSpot)
 
       spotFeatureWeightVector match {
         case Some(weights) => {
 
           val (sf, p) = try {
             val sf = surfaceFormStore.getSurfaceForm(spot)
-            println("FOUND SF IN MAIN STORE")
+            //println("FOUND SF IN MAIN STORE")
             (sf, sf.annotationProbability)
           } catch {
             case e: SurfaceFormNotFoundException => {
-              println("NOT FOUND SURFACE FORM in MAIN STORE....")
+              //println("NOT FOUND SURFACE FORM in MAIN STORE....")
               surfaceFormStore.getRankedSurfaceFormCandidates(stemmedSpot).headOption match {
                 case Some(p) => {
-                                 println("Found surface Form in Stem-Store")
-                                 println(p)
+                                 //println("Found surface Form in Stem-Store")
+                                 //println(p)
                                  p
                                 }
                 case None =>{
-                             println("Not found in stem-store..")
-                             throw e
-                     }
+                             //println("Not found in stem-store..")
+                             //println(stemmedSpot)
+                              throw e
+                    }
 
                 }
               }
@@ -162,11 +163,11 @@ abstract class DBSpotter(
 
 
           sf.name = spot
-          println("====================")
+          //println("====================")
           (Some(sf), weights dot DBSpotter.spotFeatures(spot, p))
         }
         case None => {
-          println("NO WEIGHTS FOUND...")
+         // println("NO WEIGHTS FOUND...")
           (Some(surfaceFormStore.getSurfaceForm(spot)), surfaceFormStore.getSurfaceForm(spot).annotationProbability)
         }
       }
@@ -180,7 +181,7 @@ abstract class DBSpotter(
   }
 
   protected def surfaceFormMatch(spot: String, confidence: Double): Option[SurfaceForm] = {
-    println("Starting surfaceForm Match")
+    //println("Starting surfaceForm Match")
     val score: (Option[SurfaceForm], Double) = spotScore(spot)
     score._1 match {
       case Some(sf) => SpotlightLog.debug(this.getClass, sf.toString + ":" + score._2)

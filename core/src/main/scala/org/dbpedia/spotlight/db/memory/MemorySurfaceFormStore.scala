@@ -138,21 +138,33 @@ class MemorySurfaceFormStore
   def getRankedSurfaceFormCandidates(surfaceform: String): Seq[(SurfaceForm, Double)] = {
 
     getSurfaceFormsNormalized(surfaceform).map{ candSf: SurfaceForm =>
-      val cLower = getLowercaseSurfaceFormCount(surfaceform.toLowerCase)
-      val cTotal = candSf.totalCount
+      //val cLower = getLowercaseSurfaceFormCount(surfaceform.toLowerCase)
+      //val cTotal = candSf.totalCount
 
       SpotlightLog.debug(this.getClass, surfaceform + " p: "+ candSf.annotationProbability)
       SpotlightLog.debug(this.getClass, surfaceform + " edit distance: "+ editDistanceScore(candSf.name, surfaceform))
-      SpotlightLog.debug(this.getClass, surfaceform + " c in total: "+ cTotal.toDouble / (cLower+cTotal))
+      //SpotlightLog.debug(this.getClass, surfaceform + " c in total: "+ cTotal.toDouble / (cLower+cTotal))
+
 
       (candSf,
         //Score for the surface form (including the case adaptation):
-        editDistanceScore(candSf.name, surfaceform) *
-        candSf.annotationProbability
+        editDistanceScore(candSf.name, surfaceform) * getNormalAnnotationProbability(surfaceform, candSf.annotationProbability) * 1.15
+
         //((2.0 * cTotal.toDouble) / (cLower+cTotal))
       )
     }.toSeq.sortBy(-_._2)
 
+  }
+
+  def getNormalAnnotationProbability(sf: String, lowerCaseProb:Double): Double= {
+
+    val id = idForString.get(sf(0).toUpper + sf.substring(1, sf.length).toLowerCase)
+    var normalProb = lowerCaseProb
+    if (id != null){
+
+        normalProb = (sfForID(id).annotationProbability + lowerCaseProb) / 2.0
+    }
+    normalProb
   }
 
 
