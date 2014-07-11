@@ -48,10 +48,10 @@ class FSASpotter(
 
             //Keep traversing the FSA until a rejecting state or the end of the sentence:
             currentState = nextState
-            println("token not in bad words: "+ sentence(j).tokenType.tokenType)
+            //println("token not in bad words: "+ sentence(j).tokenType.tokenType)
           }else{
 
-            println("token  in bad words: "+ sentence(j).tokenType.tokenType)
+            //println("token  in bad words: "+ sentence(j).tokenType.tokenType)
           }
 
           j += 1

@@ -173,8 +173,8 @@ abstract class DBSpotter(
       }
     } catch {
       case e: Exception =>{
-          println("exception :" )
-          e.printStackTrace()
+          //println("exception :" )
+          //e.printStackTrace()
           (None, 0.0)
       }
     }
