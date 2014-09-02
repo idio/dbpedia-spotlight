@@ -94,7 +94,7 @@ abstract class DBSpotter(
               //SpotlightLog.info(this.getClass, spot + ":" + chunkSpan.getType)
 
 
-              val confidence = text.featureValue[Double]("confidence").getOrElse(0.5)
+              val confidence = text.featureValue[Double]("spotterConfidence").getOrElse(0.5)
               val sfMatch = surfaceFormMatch(spot, confidence=math.max(MIN_CONFIDENCE, confidence))
 
 

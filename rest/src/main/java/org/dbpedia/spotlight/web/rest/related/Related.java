@@ -24,8 +24,6 @@ import org.dbpedia.spotlight.model.SpotlightConfiguration;
 import org.dbpedia.spotlight.web.rest.RelatedResources;
 import org.dbpedia.spotlight.web.rest.Server;
 import org.dbpedia.spotlight.web.rest.ServerUtils;
-import org.dbpedia.spotlight.web.rest.SpotlightInterface;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
