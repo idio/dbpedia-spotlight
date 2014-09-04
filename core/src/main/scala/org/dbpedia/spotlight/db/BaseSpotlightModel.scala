@@ -154,6 +154,7 @@ class BaseSpotlightModel(val tokenizer: TextTokenizer,
 
     occList = filter.accept(new FilterOccsImpl, occList)
 
+    if ( relevanceScorer.isDefined && occList.size >0){ occList = getRelevances(occList) }
 
     //if (LOG.isDebugEnabled) {
      // LOG.debug("Shown:")
