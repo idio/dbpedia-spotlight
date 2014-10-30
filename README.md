@@ -1,5 +1,5 @@
 # Idio flavored DBpedia Spotlight
-This is a fork of [DBpedia Spotlight](https://github.com/idio/dbpedia-spotlight/) 0.6 created at [Idio](http://idio.github.io/).
+This is a fork of [DBpedia Spotlight](https://github.com/idio/dbpedia-spotlight/) 0.6 created at [idio](http://idio.github.io/).
 
 #### Shedding Light on the Web of Documents
 
@@ -28,15 +28,18 @@ Major differences:
 
 Compilation instructions:
 
-1. Do `mvn package`
-2. Get a language model: `http://spotlight.sztaki.hu/downloads/version-0.1/`
-3. Uncompress the language model
-4. Run :
-             ```java -Xmx15G -Xms15G -jar dist/target/dbpedia-spotlight-0.6-jar-with-dependencies.jar ~/pathToYourDecompressedModels/en/ http://localhost:2222/rest```
+1. Clone this repo
+2. Inside the folder of the repo do: `mvn package`
+3. Get a language model: `http://spotlight.sztaki.hu/downloads/version-0.1/`
+4. Uncompress the language model
+5. Run :
+             ```java -Xmx15G -Xms15G -jar dist/target/dbpedia-spotlight-0.6-jar-with-dependencies.jar ~/pathToYourDecompressedModels/ http://localhost:2222/rest```
 
-5. Go to: `http://localhost:2222/rest/annotate?text=Berlin`
+6. Go to: `http://localhost:2222/rest/annotate?text=Berlin`
 
-
+## Join idio!
+If you are interested in Topic Extraction, NLP or Software Engineering you should take a look at our [jobs Page](http://idio.github.io/jobs/)
+We're always on the lookout for awesome people to join our team.
 
 ## Licenses
 
