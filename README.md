@@ -38,7 +38,7 @@ Compilation instructions:
 6. Go to: `http://localhost:2222/rest/annotate?text=Berlin`
 
 ## Join idio!
-If you are interested in Topic Extraction, NLP or Software Engineering you should take a look at our [jobs Page](http://idio.github.io/jobs/)
+If you are interested in Topic Extraction, NLP or Software Engineering you should take a look at our [jobs page](http://idio.github.io/jobs/)
 We're always on the lookout for awesome people to join our team.
 
 ## Licenses
