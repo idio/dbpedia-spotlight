@@ -1,44 +1,48 @@
-# DBpedia Spotlight
+# Idio flavored DBpedia Spotlight
+This is a fork of [DBpedia Spotlight](https://github.com/idio/dbpedia-spotlight/) 0.6 created at [idio](http://idio.github.io/).
+
 #### Shedding Light on the Web of Documents
 
 DBpedia Spotlight looks for ~3.5M things of unknown or ~320 known types in text and tries to link them to their global unique identifiers in [DBpedia](http://dbpedia.org). 
 
-#### Demonstration
+#### What are the key differences between this Fork and the main Spotlight branch ?
 
-Go to our [Demonstration](http://spotlight.dbpedia.org/demo/) page, copy+paste some text and play with the parameters to see how it works.
+This fork is based on Spotlight 0.6.
 
-#### Call our web service
+Spotlight 0.7 provides a great playground for experimentation, however Spotlight 0.6 is more stable and less buggy at the moment. Due to bugs and issues with the Surface Form matching in 0.7, we have decided to maintain this 0.6 fork.
 
-You can use our demonstration [Web Service](http://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki/Web-service) directly from your application.
+Major differences: 
+- **Relevance Score**: Every spotted entitity gets a relevance score, which measures the importance of the entity within the given text.
+- **Bug fixes**: A few bugs which affected 0.6 version are fixed
 
-    curl http://spotlight.dbpedia.org/rest/annotate \
-      --data-urlencode "text=President Obama called Wednesday on Congress to extend a tax break
-      for students included in last year's economic stimulus package, arguing
-      that the policy provides more generous assistance." \
-      --data "confidence=0.2" \
-      --data "support=20"
 
-#### Run your own server
+#### What's planned for the future ?
 
-If you need service reliability and lower response times, you can run DBpedia Spotlight in your own [In-House Server](https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki/Installation). Try our automated setup script for [dpkg](https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki/Debian-Package-Installation:-How-To):
+- Scala 2.10/2.11 support
+- Models based on DBpedia 2014
+- Better memory usage by Introducing the quantizied models available for Spotlight 0.7
+- Improving surface form matching: lowercases, inflexions..
+- Add Interface for querying/updating models
 
-    wget http://spotlight.sztaki.hu/downloads/dbpedia-spotlight-0.6.deb
-    dpkg -i dbpedia-spotlight-0.6.deb
-    #Follow the installation assistant
-    /usr/bin/dbpedia-spotlight-[language]
+#### Installation
 
-#### Build from source
+Compilation instructions:
 
-We provide a [Java/Scala API](http://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki/Java%2FScala%20API) for you to use our code in your application.
+1. Clone this repo
+2. Inside the folder of the repo do: `mvn package`
+3. Get a language model: `http://spotlight.sztaki.hu/downloads/version-0.1/`
+4. Uncompress the language model
+5. Run :
+             ```java -Xmx15G -Xms15G -jar dist/target/dbpedia-spotlight-0.6-jar-with-dependencies.jar ~/pathToYourDecompressedModels/ http://localhost:2222/rest```
 
-[![Build Status](https://secure.travis-ci.org/dbpedia-spotlight/dbpedia-spotlight.png?branch=master)](http://travis-ci.org/dbpedia-spotlight/dbpedia-spotlight)
+6. Go to: `http://localhost:2222/rest/annotate?text=Berlin`
+
+## Join idio!
+If you are interested in Knowledge Mining, NLP or Software Engineering you should take a look at our [jobs page](http://idio.github.io/jobs/)
+We're always on the lookout for awesome people to join our team.
 
 ## Licenses
 
 All the original code produced for DBpedia Spotlight is licensed under  [Apache License, 2.0](http://www.apache.org/licenses/LICENSE-2.0.html). Some modules have dependencies on [LingPipe](http://alias-i.com/lingpipe/) under the [Royalty Free License](http://alias-i.com/lingpipe/licenses/lingpipe-license-1.txt). Some of our original code (currently) depends on GPL-licensed or LGPL-licensed code and is therefore also GPL or LGPL, respectively. We are currently cleaning up the dependencies to release two builds, one purely GPL and one purely Apache License, 2.0.
 
 The documentation on this website is shared as [Creative Commons Attribution-ShareAlike 3.0 Unported License](http://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License).
-
-## Documentation
-
-More documentation is available from the [DBpedia Spotlight wiki](https://github.com/dbpedia-spotlight/dbpedia-spotlight/wiki).
