@@ -145,6 +145,7 @@ public class MergedOccurrencesDisambiguator implements Disambiguator {
                         Provenance.Annotation(),
                         score,
                         percentageOfSecond,
+                        score,
                         score); //TODO abusing what was spotProb here. now we have contextual score. need better way to do this
                 rankedOccs.add(resultOcc);
             }

@@ -25,12 +25,14 @@ class DBpediaResourceOccurrence(val id : String,
                                 val provenance : Provenance.Value = Provenance.Undefined,
                                 var similarityScore : Double = -1,
                                 var percentageOfSecondRank : Double = -1,
-                                var contextualScore: Double = -1)
+                                var contextualScore: Double = -1,
+                                var spotScore: Double = 0.0)
         extends HasFeatures with Comparable[DBpediaResourceOccurrence] {
 
     setFeature(new Score("finalScore", similarityScore))
     setFeature(new Score("contextualScore", contextualScore))
     setFeature(new Score("percentageOfSecondRank", percentageOfSecondRank))
+    setFeature(new Score("spotScore", spotScore))
 
     //TODO there are a lot of constructors here, because Scala keyword arguments do not mix well with Java; cleaning up anyone?
 

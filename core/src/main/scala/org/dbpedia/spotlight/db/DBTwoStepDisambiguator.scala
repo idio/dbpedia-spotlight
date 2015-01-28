@@ -162,7 +162,8 @@ class DBTwoStepDisambiguator(
           Provenance.Undefined,
           0.0,
           0.0,
-          contextScores(cand.resource)
+          contextScores(cand.resource),
+          aSfOcc.spotProb
         )
 
         //Set the scores as features for the resource occurrence:
