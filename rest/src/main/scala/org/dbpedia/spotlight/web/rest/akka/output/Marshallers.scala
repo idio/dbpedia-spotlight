@@ -1,6 +1,7 @@
 package org.dbpedia.spotlight.web.rest.akka.output
 
 
+import org.dbpedia.spotlight.web.rest.akka.output.OutputResult
 import spray.http.{HttpEntity, MediaTypes}
 import spray.httpx.marshalling.Marshaller
 import spray.httpx.marshalling._
@@ -13,32 +14,13 @@ object SpotlightMarshallers {
   implicit def json4sFormats: Formats = DefaultFormats
 
 
-  val ResourceMarshallerJson =
-    Marshaller.of[Resource](MediaTypes.`application/json`) { (value, contentType, ctx) =>
+  implicit def resultMarshallerJson[T <: OutputResult] =
+    Marshaller.of[T](MediaTypes.`application/json`) { (value, contentType, ctx) =>
       val string =  write(value)
       ctx.marshalTo(HttpEntity(contentType, string))
     }
 
-  val SpotMarshallerJson =
-    Marshaller.of[Spot](MediaTypes.`application/json`) { (value, contentType, ctx) =>
-      val string =  write(value)
-      ctx.marshalTo(HttpEntity(contentType, string))
-    }
-
-  val AnnotationMarshallerJson =
-    Marshaller.of[Annotation](MediaTypes.`application/json`) { (value, contentType, ctx) =>
-      val string =  write(value)
-      ctx.marshalTo(HttpEntity(contentType, string))
-    }
-
-  implicit val AnnotationMarshaller: ToResponseMarshaller[Annotation] =
-    ToResponseMarshaller.oneOf(MediaTypes.`application/json`)  (AnnotationMarshallerJson)
-
-  implicit val ResourceMarshaller: ToResponseMarshaller[Resource] =
-    ToResponseMarshaller.oneOf(MediaTypes.`application/json`)  (ResourceMarshallerJson)
-
-  implicit val SpotMarshaller: ToResponseMarshaller[Spot] =
-    ToResponseMarshaller.oneOf(MediaTypes.`application/json`)  (SpotMarshallerJson)
-
+  implicit def resultMarshaller[T <: OutputResult]: ToResponseMarshaller[T] =
+    ToResponseMarshaller.oneOf(MediaTypes.`application/json`)  (resultMarshallerJson)
 
 }
