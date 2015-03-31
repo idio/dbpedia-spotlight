@@ -13,7 +13,6 @@ object SpotlightMarshallers {
 
   implicit def json4sFormats: Formats = DefaultFormats
 
-
   implicit def resultMarshallerJson[T <: OutputResult] =
     Marshaller.of[T](MediaTypes.`application/json`) { (value, contentType, ctx) =>
       val string =  write(value)
@@ -22,5 +21,4 @@ object SpotlightMarshallers {
 
   implicit def resultMarshaller[T <: OutputResult]: ToResponseMarshaller[T] =
     ToResponseMarshaller.oneOf(MediaTypes.`application/json`)  (resultMarshallerJson)
-
 }
