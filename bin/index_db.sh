@@ -107,7 +107,7 @@ if [ "$DATA_ONLY" != "true" ]; then
       mvn -T 1C -q clean install
   else
       echo "Setting up DBpedia Spotlight..."
-      git clone --depth 1 https://github.com/dbpedia-spotlight/dbpedia-spotlight.git
+      git clone --depth 1 https://github.com/idio/dbpedia-spotlight.git
       cd dbpedia-spotlight
       mvn -T 1C -q clean install
   fi
@@ -127,7 +127,7 @@ else
     echo "Setting up PigNLProc..."
     mkdir -p $BASE_WDIR/pig/
     cd $BASE_WDIR/pig/
-    git clone --depth 1 https://github.com/dbpedia-spotlight/pignlproc.git
+    git clone --depth 1 https://github.com/idio/pignlproc.git
     cd pignlproc
     echo "Building PigNLProc..."
     mvn -T 1C -q assembly:assembly -Dmaven.test.skip=true
@@ -141,7 +141,7 @@ if [ "$local_mode" == "true" ]; then
   if [ ! -e "$BASE_WDIR/pig/pig-0.10.1/" ]; then
     #Install pig:
     cd $BASE_WDIR/pig
-    wget http://apache.mirror.triple-it.nl/pig/pig-0.10.1/pig-0.10.1-src.tar.gz
+    wget http://archive.apache.org/dist/pig/pig-0.10.1/pig-0.10.1-src.tar.gz
     tar xvzf pig-0.10.1-src.tar.gz
     rm pig-0.10.1-src.tar.gz
     cd pig-0.10.1-src
